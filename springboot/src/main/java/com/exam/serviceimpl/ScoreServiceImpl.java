@@ -27,7 +27,7 @@ public class ScoreServiceImpl implements ScoreService {
 
     @Override
     public IPage<Score> findById(Page page, Integer studentId) {
-        return scoreMapper.findById(page, studentId);
+        return scoreMapper.findByIdPage(page, studentId);
     }
 
     @Override

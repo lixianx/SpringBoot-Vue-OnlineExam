@@ -13,7 +13,7 @@ public interface ExamManageMapper {
     List<ExamManage> findAll();
 
     @Select("select * from exam_manage")
-    IPage<ExamManage> findAll(Page page);
+    IPage<ExamManage> findAllPage(Page page);
 
     @Select("select * from exam_manage where examCode = #{examCode}")
     ExamManage findById(Integer examCode);

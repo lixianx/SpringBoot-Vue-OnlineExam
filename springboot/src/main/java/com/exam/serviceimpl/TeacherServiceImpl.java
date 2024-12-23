@@ -17,7 +17,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public IPage<Teacher> findAll(Page<Teacher> page) {
-        return teacherMapper.findAll(page);
+        return teacherMapper.findAllPage(page);
     }
 
     @Override

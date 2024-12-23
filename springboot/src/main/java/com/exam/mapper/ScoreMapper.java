@@ -25,7 +25,7 @@ public interface ScoreMapper {
 
     // 分页
     @Select("select scoreId,examCode,studentId,subject,ptScore,etScore,score,answerDate from score where studentId = #{studentId} order by scoreId desc")
-    IPage<Score> findById(Page<?> page, Integer studentId);
+    IPage<Score> findByIdPage(Page<?> page, Integer studentId);
 
     // 不分页
     @Select("select scoreId,examCode,studentId,subject,ptScore,etScore,score,answerDate from score where studentId = #{studentId}")

@@ -11,7 +11,7 @@ import java.util.List;
 public interface TeacherMapper {
 
     @Select("select * from teacher")
-    IPage<Teacher>  findAll(Page page);
+    IPage<Teacher>  findAllPage(Page page);
 
     @Select("select * from teacher")
     public List<Teacher> findAll();

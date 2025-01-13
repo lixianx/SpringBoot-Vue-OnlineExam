@@ -88,6 +88,10 @@
               </el-option>
             </el-select>
           </li>
+        <!-- image -->
+        <div>
+
+  </div>
         </ul>
         <!-- 选择题部分 -->
         <div class="change" v-if="optionValue == '选择题'">
@@ -249,18 +253,155 @@
         </ul>
       </div>
     </el-tab-pane>
+    <el-tab-pane name="third">
+      <span slot="label"><i class="iconfont icon-daoru-tianchong"></i>图片解析</span>
+      <div class="box">
+      <h2>上传图片</h2>
+    <input type="file" @change="handleFileUpload" accept="image/*" />
+    <button @click="submitImage">上传图片</button>
+    <div v-if="parsedData">
+      <h3>解析结果</h3>
+      
+      <div 
+      v-for="(item, index) in jsonParse"
+  :key="index"
+  class="change"
+  style="
+    margin-bottom: 16px; 
+    padding: 16px; 
+    background-color: #f9f9f9; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  "
+      >
+        <ul style="display: flex;">
+        <li>
+          <span>所属章节：</span>
+            <el-input
+              placeholder="请输入对应章节"
+              v-model="sec[index]"
+              class="w150"
+              clearable
+              style="width: 150px;">
+            </el-input>
+        </li>
+
+        <li style="margin-left: 300px;">
+          <span>难度等级:</span>
+            <el-select v-model="item.type" placeholder="选择难度等级" class="w150" style="width: 150px;">
+              <el-option
+                v-for="item in levels"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+        </li>
+        <li style="margin-left: 400px;">
+          <span>正确选项:</span>
+            <el-select v-model="item.rightAnswer" placeholder="选择正确答案" class="w150" style="width: 150px;">
+              <el-option
+                v-for="item in rights"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+        </li>
+      </ul>
+      <div class="title">
+        <el-input
+          type="textarea"
+          rows="4"
+          v-model="item.question"
+          placeholder="请输入题目内容"
+          resize="none"
+          class="answer"
+        />
+      </div>
+      <div class="options">
+        <ul>
+          <li>
+            <el-tag type="success">A</el-tag>
+            <el-input
+              placeholder="请输入选项A的内容"
+              v-model="item.answerA"
+              clearable
+              style="width: 1500px;"
+            />
+          </li>
+          <li>
+            <el-tag type="success">B</el-tag>
+            <el-input
+              placeholder="请输入选项B的内容"
+              v-model="item.answerB"
+              clearable
+              style="width: 1500px;"
+            />
+          </li>
+          <li>
+            <el-tag type="success">C</el-tag>
+            <el-input
+              placeholder="请输入选项C的内容"
+              v-model="item.answerC"
+              clearable
+              style="width: 1500px;"
+            />
+          </li>
+          <li>
+            <el-tag type="success">D</el-tag>
+            <el-input
+              placeholder="请输入选项D的内容"
+              v-model="item.answerD"
+              clearable
+              style="width: 1500px;"
+            />
+          </li>
+        </ul>
+      </div>
+      <div class="title">
+        <el-tag>解析:</el-tag><span>在下面的输入框中输入题目解析</span>
+        <el-input
+          type="textarea"
+          rows="4"
+          v-model="item.analysis"
+          placeholder="请输入答案解析"
+          resize="none"
+          class="answer"
+        />
+      </div>
+    </div>
+
+    <!-- 提交按钮 -->
+    <div style="text-align: center;">
+      <el-button type="primary" @click="submitChanges()" style="width: 700px">提交</el-button>
+    </div>
+      
+    </div>
+      </div>
+
+    </el-tab-pane>
   </el-tabs>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+import { toRaw } from 'vue';
 export default {
+
   data() {
     return {
+      file: null,
+      jsonParse: null,
+      parsedData: null,
       changeNumber: null, //选择题出题数量
       fillNumber: null, //填空题出题数量
       judgeNumber: null, //判断题出题数量
       activeName: 'first',  //活动选项卡
+      sec: [],
+
       options: [ //题库类型
         {
           value: '选择题',
@@ -374,6 +515,115 @@ export default {
   methods: {
     // handleClick(tab, event) {
     //   console.log(tab, event);
+    // },
+
+    submitChanges() {
+
+      const postChanges = this.jsonParse.map(item => ({
+      subject: this.subject, // 试卷名称
+      level: item.type, // 难度等级选中值
+      rightAnswer: item.rightAnswer,
+      section: '', // 对应章节
+      question: item.question,
+      analysis: item.analysis,
+      answerA: item.answerA,
+      answerB: item.answerB,
+      answerC: item.answerC,
+      answerD: item.answerD
+      }));
+      
+      postChanges.forEach((item, index) => {
+        item.section = this.sec[index];
+      });
+      console.log(postChanges);
+      
+      this.$axios({ //提交数据到选择题题库表
+        url: '/api/push',
+        method: 'post',
+        data: postChanges,
+      }).then(res => { //添加成功显示提示
+        let status = res.data.code
+        if(status == 200) {
+          this.$message({
+            message: '已添加到题库',
+            type: 'success'
+          })
+          this.postChange = {}
+          this.parsedData = null
+          this.jsonParse = null
+          this.sec = []
+        }
+      }).then(() => {
+        this.$axios(`/api/multiQuestionId`).then(res => { //获取当前题目的questionId
+          let questionId = res.data.data.questionId
+          this.postPaper.questionId = questionId
+          this.postPaper.questionType = 1
+          this.$axios({
+            url: '/api/paperManage',
+            method: 'Post',
+            data: {
+              ...this.postPaper
+            }
+          })
+        })
+      })
+    },
+    // image
+    handleFileUpload(event) {
+      this.file = event.target.files[0];
+    },
+    async submitImage() {
+      if (!this.file) {
+        alert('请选择一个文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', this.file);
+
+      try {
+        const response = await axios.post('http://localhost:8080/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      
+        this.parsedData = response.data.slice(3, -3).replace(/^json\s*/, '');
+        
+        try {
+          this.jsonParse = JSON.parse(this.parsedData);
+          //获取jsonParse的长度
+
+          this.sec = new Array(this.jsonParse.length).fill(null);
+          
+          // console.log("解析成功", this.jsonParse);
+          // console.log(typeof this.jsonParse);
+        } catch (error) {
+          console.error('解析失败:', error);
+        }
+
+        
+      } catch (error) {
+        console.error('上传失败:', error);
+        alert('上传失败，请重试');
+      }
+    },
+    // async submitParsedData() {
+    //   if (!this.parsedData) {
+    //     alert('请先上传并解析图片');
+    //     return;
+    //   }
+
+    //   try {
+    //     const response = await axios.post('http://localhost:8080/file/submit', {
+    //       data: this.parsedData,
+    //     });
+    //     alert('数据已成功提交');
+    //     console.log('提交成功:', response.data);
+    //   } catch (error) {
+    //     console.error('提交失败:', error);
+    //     alert('提交失败，请重试');
+    //   }
     // },
     create() {
       this.$axios({
@@ -514,6 +764,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+
 .add {
   margin: 0px 40px;
   .box {

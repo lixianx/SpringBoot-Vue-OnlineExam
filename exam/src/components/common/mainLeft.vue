@@ -82,7 +82,6 @@ export default {
   min-height: 900px;
 }
 #left {
-  height: 900px;
   background-color: #124280;
   z-index: 0;
 }

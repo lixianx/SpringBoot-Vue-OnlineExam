@@ -32,7 +32,16 @@ public class MultiQuestionServiceImpl implements MultiQuestionService {
 
     @Override
     public int add(MultiQuestion multiQuestion) {
-        return multiQuestionMapper.add(multiQuestion);
+         return multiQuestionMapper.add(multiQuestion);
+    }
+
+    @Override
+    public int addList(List<MultiQuestion> multiQuestions) {
+        int id = 0;
+        for (MultiQuestion multiQuestion : multiQuestions){
+            id = multiQuestionMapper.add(multiQuestion);
+        }
+        return id;
     }
 
     @Override

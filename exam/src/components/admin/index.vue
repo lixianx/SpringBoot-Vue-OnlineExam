@@ -42,12 +42,16 @@ export default {
 }
 .container {
   display: flex;
+  align-items: stretch;
   background-color: #fff;
 }
 .main_wrapper {
   overflow: hidden;
   flex: 1;
   background-color: #fff;
+}
+.left_side {
+  background-color: #124280;
 }
 </style>
 
